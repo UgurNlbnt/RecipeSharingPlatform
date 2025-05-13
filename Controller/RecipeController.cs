@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using TarifPaylasim.Data;
+using TarifPaylasim.Mappers;
 
 namespace TarifPaylasim.Controller
 {
@@ -24,7 +25,8 @@ namespace TarifPaylasim.Controller
         [HttpGet]
         public IActionResult GetAll()
         {
-            var recipes = _context.Recipe.ToList();
+            var recipes = _context.Recipe.ToList().Select(s => s.toRecipeDto());;
+            
             return Ok(recipes);
         }
 
@@ -38,7 +40,7 @@ namespace TarifPaylasim.Controller
                 return NotFound();
             }
 
-            return Ok(recipe);
+            return Ok(recipe.toRecipeDto());
         }
     }
 }
