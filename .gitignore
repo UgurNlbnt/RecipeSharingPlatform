@@ -1,0 +1,20 @@
+# .NET Core için .gitignore
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code ayarları
+.vscode/
+
+# Paket klasörleri
+node_modules/
+packages/
+
+# publish klasörü
+publish/
+
+# Log dosyaları
+*.log
