@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using TarifPaylasim.Data;
 using TarifPaylasim.Dtos;
 using TarifPaylasim.Dtos.Recipe;
@@ -25,18 +26,20 @@ namespace TarifPaylasim.Controller
 
 
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var recipes = _context.Recipe.ToList().Select(s => s.toRecipeDto());;
+            var recipes = await _context.Recipe.ToListAsync();
+
+            var recipeDto = recipes.Select(x => x.toRecipeDto());
             
             return Ok(recipes);
         }
 
 
         [HttpGet("{id}")]
-        public IActionResult GetById([FromRoute] int id)
+        public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            var recipe = _context.Recipe.Find(id);
+            var recipe = await  _context.Recipe.FindAsync(id);
             if (recipe == null)
             {
                 return NotFound();
@@ -47,20 +50,20 @@ namespace TarifPaylasim.Controller
 
 
         [HttpPost]
-        public IActionResult Create([FromBody] CreateRecipeRequestDto recipeDto)    
+        public async Task<IActionResult> Create([FromBody] CreateRecipeRequestDto recipeDto)    
         {
-        var recipeModel = recipeDto.ToRecipeFromCreateDTO();
-        _context.Recipe.Add(recipeModel);
-        _context.SaveChanges();
-        return CreatedAtAction(nameof(GetById), new { id = recipeModel.Id }, recipeModel.toRecipeDto());
+            var recipeModel = recipeDto.ToRecipeFromCreateDTO();
+            await _context.Recipe.AddAsync(recipeModel);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetById), new { id = recipeModel.Id }, recipeModel.toRecipeDto());
         }
 
 
         [HttpPut]
         [Route("{id}")]
-        public IActionResult Update([FromRoute] int id, [FromBody] UpdateRecipeRequestDto recipeDto)
+        public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateRecipeRequestDto recipeDto)
         {
-            var recipemodel = _context.Recipe.FirstOrDefault(x => x.Id == id);
+            var recipemodel = await _context.Recipe.FirstOrDefaultAsync(x => x.Id == id);
             if (recipemodel == null)
             {
                 return NotFound();
@@ -75,23 +78,23 @@ namespace TarifPaylasim.Controller
             recipemodel.Ingredients = recipeDto.Ingredients;
             recipemodel.Instructions = recipeDto.Instructions;
 
-            _context.SaveChanges();
+           await _context.SaveChangesAsync();
 
             return Ok(recipemodel.toRecipeDto());
         }
 
         [HttpDelete]
         [Route("{id}")]
-        public IActionResult Delete([FromRoute] int id)
+        public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            var recipemodel = _context.Recipe.FirstOrDefault(x => x.Id == id);
+            var recipemodel = await _context.Recipe.FirstOrDefaultAsync(x => x.Id == id);
             if (recipemodel == null)
             {
                 return NotFound();
             }
 
             _context.Recipe.Remove(recipemodel);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
