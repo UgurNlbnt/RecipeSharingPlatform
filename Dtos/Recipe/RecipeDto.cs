@@ -14,5 +14,7 @@ namespace TarifPaylasim.Dtos
         public int CookTime { get; set; }
         public string Category { get; set; } = string.Empty;
         public int ServingSize { get; set; }
+         public string Ingredients { get; set; } = string.Empty;
+        public string Instructions { get; set; } = string.Empty;
     }
 }

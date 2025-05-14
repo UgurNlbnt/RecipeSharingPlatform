@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TarifPaylasim.Dtos;
+using TarifPaylasim.Dtos.Recipe;
 using TarifPaylasim.Models;
 
 namespace TarifPaylasim.Mappers
@@ -19,8 +20,26 @@ namespace TarifPaylasim.Mappers
                 PreparationTime = recipeModel.PreparationTime,
                 CookTime = recipeModel.CookTime,
                 Category = recipeModel.Category,
-                ServingSize = recipeModel.ServingSize
+                ServingSize = recipeModel.ServingSize,
+                Ingredients = recipeModel.Ingredients,
+                Instructions = recipeModel.Instructions
            };
         }
+
+
+    public static Recipes ToRecipeFromCreateDTO(this CreateRecipeRequestDto recipeDto)
+    {
+        return new Recipes
+        {
+            Slug = recipeDto.Slug,
+            RecipeName = recipeDto.RecipeName,
+            PreparationTime = recipeDto.PreparationTime,
+            CookTime = recipeDto.CookTime,
+            Category = recipeDto.Category,
+            ServingSize = recipeDto.ServingSize,
+            Ingredients = recipeDto.Ingredients,
+            Instructions = recipeDto.Instructions
+        };
     }
+    }    
 }
