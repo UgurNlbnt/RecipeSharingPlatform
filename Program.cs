@@ -14,7 +14,7 @@ builder.Services.AddControllers();
 
 
 builder.Services.AddScoped<IRecipeRepository, RecipeRepository>();
-
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

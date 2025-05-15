@@ -95,8 +95,6 @@ namespace TarifPaylasim.Controller
             }
 
             return NoContent();
-
-        
         }
     }
 }

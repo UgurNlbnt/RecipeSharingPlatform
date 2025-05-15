@@ -17,6 +17,7 @@ namespace TarifPaylasim.Interface
 
         Task<Recipes?> UpdateAsync(int id, UpdateRecipeRequestDto recipeDto);
 
-        Task<Recipes?> DeleteAsync(int id);
-    }
+        Task<Recipes?> DeleteAsync(int id);
+
+        Task<bool> RecipeExists(int id);}
 }

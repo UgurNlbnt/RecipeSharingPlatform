@@ -43,16 +43,19 @@ namespace TarifPaylasim.Repository
 
         public async Task<List<Recipes>> GetAllAsync()
         {
-            return await _context.Recipe.ToListAsync();
+            return await _context.Recipe.Include(c=>c.Comments).ToListAsync();
         }
 
 
         public async Task<Recipes?> GetByIdAsync(int id)
         {
-            return await _context.Recipe.FindAsync(id);
+            return await _context.Recipe.Include(c=>c.Comments).FirstOrDefaultAsync(x => x.Id == id);
         }
 
-
+        public Task<bool> RecipeExists(int id)
+        {
+            throw new NotImplementedException();
+        }
 
         public async Task<Recipes?> UpdateAsync(int id, UpdateRecipeRequestDto recipeDto)
         {
