@@ -10,8 +10,7 @@ using TarifPaylasim.Mappers;
 namespace TarifPaylasim.Controller
 {
    [ApiController]
-   [ApiVersion("1.0")]
-   [Route("api/v{version:apiVersion}/comment")]
+   [Route("api/comment")]
     public class CommentController : ControllerBase
     {
         private readonly ICommentRepository _commentRepo;
@@ -26,7 +25,7 @@ namespace TarifPaylasim.Controller
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            if(ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -40,7 +39,7 @@ namespace TarifPaylasim.Controller
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            if(ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -57,7 +56,7 @@ namespace TarifPaylasim.Controller
         [HttpPost("{recipeId:int}")]
         public async Task<IActionResult> Create([FromRoute] int recipeId, [FromBody] CreateCommentDto commentDto)
         {
-            if(ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -76,7 +75,7 @@ namespace TarifPaylasim.Controller
         [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateCommentRequestDto updateDto)
         {
-            if(ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -92,10 +91,10 @@ namespace TarifPaylasim.Controller
         }
 
         [HttpDelete]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            if(ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }

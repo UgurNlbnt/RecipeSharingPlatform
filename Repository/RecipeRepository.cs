@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TarifPaylasim.Data;
 using TarifPaylasim.Dtos;
+using TarifPaylasim.Helpers;
 using TarifPaylasim.Interface;
 using TarifPaylasim.Models;
 
@@ -46,9 +47,42 @@ namespace TarifPaylasim.Repository
            
         }
 
-        public async Task<List<Recipes>> GetAllAsync()
+        public async Task<List<Recipes>> GetAllAsync(QueryObject query)
         {
-            return await _context.Recipe.Include(c => c.Comments).ToListAsync();
+            var recipes =  _context.Recipe.Include(c => c.Comments).AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query.RecipeName))
+            {
+                recipes = recipes.Where(x => x.RecipeName.Contains(query.RecipeName));
+            }
+
+            if (!string.IsNullOrWhiteSpace(query.Category))
+            {
+                recipes = recipes.Where(x => x.Category.Contains(query.Category));
+            }
+
+            if(!string.IsNullOrWhiteSpace(query.SortBy))
+            {
+               if (query.SortBy.Equals("RecipeName", StringComparison.OrdinalIgnoreCase))
+                {
+                recipes = query.IsDecsending ? recipes.OrderByDescending(x => x.RecipeName) : recipes.OrderBy(x => x.RecipeName);
+                }
+
+                else if (query.SortBy.Equals("Category", StringComparison.OrdinalIgnoreCase))
+                {
+                    recipes = query.IsDecsending ? recipes.OrderByDescending(x => x.Category) : recipes.OrderBy(x => x.Category);
+                }
+
+                else if (query.SortBy.Equals("CookTime", StringComparison.OrdinalIgnoreCase))
+                {
+                    recipes = query.IsDecsending ? recipes.OrderByDescending(x => x.CookTime) : recipes.OrderBy(x => x.CookTime);
+                }
+               
+            }
+
+            var skipNumber = (query.PageNumber - 1) * query.PageSize;
+            
+            return await recipes.Skip(skipNumber).Take(query.PageSize).ToListAsync();
         }
 
 

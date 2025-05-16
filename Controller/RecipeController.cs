@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using TarifPaylasim.Data;
 using TarifPaylasim.Dtos;
 using TarifPaylasim.Dtos.Recipe;
+using TarifPaylasim.Helpers;
 using TarifPaylasim.Interface;
 using TarifPaylasim.Mappers;
 using TarifPaylasim.Repository;
@@ -15,8 +16,7 @@ namespace TarifPaylasim.Controller
 {
    
     [ApiController]
-    [ApiVersion("1.0")]
-    [Route("api/v{version:apiVersion}/recipe")]
+    [Route("api/recipe")]
     public class RecipeController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -31,14 +31,14 @@ namespace TarifPaylasim.Controller
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
-            if(ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var recipes = await _recipeRepo.GetAllAsync();
+            var recipes = await _recipeRepo.GetAllAsync(query);
 
             var recipeDto = recipes.Select(x => x.toRecipeDto());
             
@@ -49,7 +49,7 @@ namespace TarifPaylasim.Controller
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            if(ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -67,7 +67,7 @@ namespace TarifPaylasim.Controller
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateRecipeRequestDto recipeDto)    
         {
-            if(ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -82,7 +82,7 @@ namespace TarifPaylasim.Controller
         [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateRecipeRequestDto recipeDto)
         {
-            if(ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -109,7 +109,7 @@ namespace TarifPaylasim.Controller
         [Route("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            if(ModelState.IsValid)
+            if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
