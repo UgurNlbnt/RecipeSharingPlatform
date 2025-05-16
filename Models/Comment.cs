@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace TarifPaylasim.Models
@@ -12,6 +13,8 @@ namespace TarifPaylasim.Models
         public string Content { get; set; } = string.Empty;
         public DateTime CreatedOn { get; set; } = DateTime.Now;
         public int? RecipeId { get; set; }
+        
+        [JsonIgnore]
         public Recipes? Recipe { get; set; }
     }
 }

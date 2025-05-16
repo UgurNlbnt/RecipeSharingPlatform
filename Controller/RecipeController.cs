@@ -15,7 +15,8 @@ namespace TarifPaylasim.Controller
 {
    
     [ApiController]
-    [Route("api/recipe")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/recipe")]
     public class RecipeController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -32,6 +33,11 @@ namespace TarifPaylasim.Controller
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
+            if(ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var recipes = await _recipeRepo.GetAllAsync();
 
             var recipeDto = recipes.Select(x => x.toRecipeDto());
@@ -40,9 +46,14 @@ namespace TarifPaylasim.Controller
         }
 
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
+            if(ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var recipe = await  _recipeRepo.GetByIdAsync(id);
             if (recipe == null)
             {
@@ -56,6 +67,11 @@ namespace TarifPaylasim.Controller
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateRecipeRequestDto recipeDto)    
         {
+            if(ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var recipeModel = recipeDto.ToRecipeFromCreateDTO();
             await _recipeRepo.CreatAsync(recipeModel);
             return CreatedAtAction(nameof(GetById), new { id = recipeModel.Id }, recipeModel.toRecipeDto());
@@ -63,9 +79,14 @@ namespace TarifPaylasim.Controller
 
 
         [HttpPut]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateRecipeRequestDto recipeDto)
         {
+            if(ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var recipemodel = await _recipeRepo.UpdateAsync(id,recipeDto);
             if (recipemodel == null)
             {
@@ -85,9 +106,14 @@ namespace TarifPaylasim.Controller
         }
 
         [HttpDelete]
-        [Route("{id}")]
+        [Route("{id:int}")]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
+            if(ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var recipemodel = await _recipeRepo.DeleteAsync(id);
             if (recipemodel == null)
             {

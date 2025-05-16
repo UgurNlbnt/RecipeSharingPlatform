@@ -40,10 +40,15 @@ namespace TarifPaylasim.Repository
             return recipemodel;
         }
 
+        public async Task<bool> RecipeExists(int id)
+        {
+            return await _context.Recipe.AnyAsync(x => x.Id == id);
+           
+        }
 
         public async Task<List<Recipes>> GetAllAsync()
         {
-            return await _context.Recipe.Include(c=>c.Comments).ToListAsync();
+            return await _context.Recipe.Include(c => c.Comments).ToListAsync();
         }
 
 
@@ -52,10 +57,6 @@ namespace TarifPaylasim.Repository
             return await _context.Recipe.Include(c=>c.Comments).FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public Task<bool> RecipeExists(int id)
-        {
-            throw new NotImplementedException();
-        }
 
         public async Task<Recipes?> UpdateAsync(int id, UpdateRecipeRequestDto recipeDto)
         {

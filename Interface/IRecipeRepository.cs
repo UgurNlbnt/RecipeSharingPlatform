@@ -7,7 +7,7 @@ using TarifPaylasim.Models;
 
 namespace TarifPaylasim.Interface
 {
-   public interface IRecipeRepository
+    public interface IRecipeRepository
     {
         Task<List<Recipes>> GetAllAsync();
 
@@ -19,5 +19,6 @@ namespace TarifPaylasim.Interface
 
         Task<Recipes?> DeleteAsync(int id);
 
-        Task<bool> RecipeExists(int id);}
+        Task<bool> RecipeExists(int id);
+    }
 }
