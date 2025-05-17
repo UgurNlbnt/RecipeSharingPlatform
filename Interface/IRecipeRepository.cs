@@ -14,6 +14,8 @@ namespace TarifPaylasim.Interface
 
         Task<Recipes?> GetByIdAsync(int id);
 
+        Task<Recipes?> GetBySlugAsync(string slug);
+
         Task<Recipes> CreatAsync(Recipes recipeModel);
 
         Task<Recipes?> UpdateAsync(int id, UpdateRecipeRequestDto recipeDto);

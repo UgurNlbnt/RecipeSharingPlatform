@@ -15,7 +15,7 @@ namespace TarifPaylasim.Dtos.Comment
 
         [Required]
         [MinLength(2, ErrorMessage = "İçerik yazısı en az 2 karakter olmalıdır.")]
-        [MaxLength(1000, ErrorMessage = "İçerik yazısı en fazla 100 karakter olmalıdır.")]
+        [MaxLength(1000, ErrorMessage = "İçerik yazısı en fazla 1000 karakter olmalıdır.")]
         public string Content { get; set; } = string.Empty;
     }
 }

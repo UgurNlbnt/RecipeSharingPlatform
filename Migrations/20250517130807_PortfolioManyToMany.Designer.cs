@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TarifPaylasim.Data;
 
@@ -11,9 +12,11 @@ using TarifPaylasim.Data;
 namespace TarifPaylasim.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250517130807_PortfolioManyToMany")]
+    partial class PortfolioManyToMany
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -51,13 +54,13 @@ namespace TarifPaylasim.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "0dcc30ea-f532-481a-838b-3616ab69cb9d",
+                            Id = "4a529305-6e36-4829-b42e-e557dced26f7",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "925d8352-d643-4761-8a45-40b8d5a84277",
+                            Id = "7b0ef8db-c23d-4b9f-8e98-b80c977a7583",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -242,10 +245,6 @@ namespace TarifPaylasim.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -261,8 +260,6 @@ namespace TarifPaylasim.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
 
                     b.HasIndex("RecipeId");
 
@@ -379,17 +376,9 @@ namespace TarifPaylasim.Migrations
 
             modelBuilder.Entity("TarifPaylasim.Models.Comment", b =>
                 {
-                    b.HasOne("TarifPaylasim.Models.AppUser", "AppUser")
-                        .WithMany()
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("TarifPaylasim.Models.Recipes", "Recipe")
                         .WithMany("Comments")
                         .HasForeignKey("RecipeId");
-
-                    b.Navigation("AppUser");
 
                     b.Navigation("Recipe");
                 });

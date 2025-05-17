@@ -49,7 +49,7 @@ namespace TarifPaylasim.Repository
 
         public async Task<List<Recipes>> GetAllAsync(QueryObject query)
         {
-            var recipes =  _context.Recipe.Include(c => c.Comments).AsQueryable();
+            var recipes =  _context.Recipe.Include(c => c.Comments).ThenInclude(z => z.AppUser).AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(query.RecipeName))
             {
@@ -88,7 +88,10 @@ namespace TarifPaylasim.Repository
 
         public async Task<Recipes?> GetByIdAsync(int id)
         {
-            return await _context.Recipe.Include(c=>c.Comments).FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Recipe
+                .Include(c => c.Comments)
+                .ThenInclude(c => c.AppUser) // yorumların yazarını da dahil et
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
 
 
@@ -110,6 +113,11 @@ namespace TarifPaylasim.Repository
             recipeModel.Instructions = recipeDto.Instructions;
 
             return recipeModel;
+        }
+
+        public async Task<Recipes?> GetBySlugAsync(string slug)
+        {
+            return await  _context.Recipe.FirstOrDefaultAsync(x => x.Slug == slug);
         }
     }
 }

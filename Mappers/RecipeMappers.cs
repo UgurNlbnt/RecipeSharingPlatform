@@ -22,7 +22,8 @@ namespace TarifPaylasim.Mappers
                 Category = recipeModel.Category,
                 ServingSize = recipeModel.ServingSize,
                 Ingredients = recipeModel.Ingredients,
-                Instructions = recipeModel.Instructions
+                Instructions = recipeModel.Instructions,
+                Comments = recipeModel.Comments.Select(c => c.toCommentDto()).ToList()
            };
         }
 

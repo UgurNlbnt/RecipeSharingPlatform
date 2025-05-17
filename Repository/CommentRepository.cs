@@ -22,16 +22,17 @@ namespace TarifPaylasim.Repository
 
         public async Task<List<Comment>> GetAllAsync()
         {
-            return await _context.Comment.ToListAsync();
+            return await _context.Comment.Include(c => c.AppUser).ToListAsync();
         }
 
         public async Task<Comment?> GetByIdAsync(int id)
         {
-            return await _context.Comment.FirstOrDefaultAsync(x => x.Id == id);
+            return await _context.Comment.Include(c=>c.AppUser).FirstOrDefaultAsync(x => x.Id == id);
         }
 
         public async Task<Comment> CreateAsync(Comment commentModel)
         {
+            commentModel.AppUser = await _context.Users.FirstOrDefaultAsync(x => x.Id == commentModel.AppUserId);
             await _context.Comment.AddAsync(commentModel);
             await _context.SaveChangesAsync();
             return commentModel;

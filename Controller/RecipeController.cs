@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TarifPaylasim.Data;
@@ -31,30 +32,32 @@ namespace TarifPaylasim.Controller
 
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
             var recipes = await _recipeRepo.GetAllAsync(query);
 
-            var recipeDto = recipes.Select(x => x.toRecipeDto());
-            
+            var recipeDto = recipes.Select(x => x.toRecipeDto()).ToList();
+
             return Ok(recipes);
         }
 
 
         [HttpGet("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var recipe = await  _recipeRepo.GetByIdAsync(id);
+            var recipe = await _recipeRepo.GetByIdAsync(id);
             if (recipe == null)
             {
                 return NotFound();
@@ -65,9 +68,10 @@ namespace TarifPaylasim.Controller
 
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateRecipeRequestDto recipeDto)    
+        [Authorize]
+        public async Task<IActionResult> Create([FromBody] CreateRecipeRequestDto recipeDto)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
@@ -79,6 +83,7 @@ namespace TarifPaylasim.Controller
 
 
         [HttpPut]
+        [Authorize]
         [Route("{id:int}")]
         public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UpdateRecipeRequestDto recipeDto)
         {
@@ -107,9 +112,10 @@ namespace TarifPaylasim.Controller
 
         [HttpDelete]
         [Route("{id:int}")]
+        [Authorize]
         public async Task<IActionResult> Delete([FromRoute] int id)
         {
-            if(!ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }

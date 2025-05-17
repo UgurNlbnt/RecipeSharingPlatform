@@ -28,7 +28,7 @@ namespace TarifPaylasim.Dtos.Recipe
         public string Category { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Porsiyon bilgisi gereklidir.")]
-        [Range(1, 100, ErrorMessage = "Porsiyon miktarı 1 ile 100 arasında olmalıdır.")]
+        [Range(1, 100, ErrorMessage = "Porsiyon miktarı 1 ile 100 kişi arasında olmalıdır.")]
         public int ServingSize { get; set; }
 
         [Required(ErrorMessage = "İçerik bilgisi gereklidir.")]
