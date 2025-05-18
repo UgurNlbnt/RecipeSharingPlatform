@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TarifPaylasim.Data;
 using TarifPaylasim.Interface;
+using TarifPaylasim.Middleware;
 using TarifPaylasim.Models;
 using TarifPaylasim.Repository;
 using TarifPaylasim.Service;
@@ -99,10 +100,15 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseMiddleware<GlobalExceptionMiddleware>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
+
 
 
 app.Run();
