@@ -1,0 +1,6 @@
+@TarifPaylasim_HostAddress = http://localhost:5186
+
+GET {{TarifPaylasim_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
