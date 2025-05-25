@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Yeni Tarif Ekle</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      margin: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    form input, form textarea, form button {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      font-size: 1em;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Yeni Tarif Ekle</h2>
+    <form onsubmit="addTarif(event)">
+      <input type="text" id="slug" placeholder="Slug" required>
+      <input type="text" id="recipeName" placeholder="Tarif Adı" required>
+      <input type="number" id="preparationTime" placeholder="Hazırlık Süresi (dk)" required>
+      <input type="number" id="cookTime" placeholder="Pişirme Süresi (dk)" required>
+      <input type="text" id="category" placeholder="Kategori" required>
+      <input type="number" id="servingSize" placeholder="Kişi Sayısı" required>
+      <textarea id="ingredients" placeholder="Malzemeler" required></textarea>
+      <textarea id="instructions" placeholder="Talimatlar" required></textarea>
+      <button type="submit">Tarifi Kaydet</button>
+    </form>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('token');
+    if (!token) window.location.href = 'login.html';
+
+    function addTarif(e) {
+      e.preventDefault();
+
+      const tarif = {
+      slug: document.getElementById('slug').value,
+      recipeName: document.getElementById('recipeName').value,
+      preparationTime: parseInt(document.getElementById('preparationTime').value),
+      cookTime: parseInt(document.getElementById('cookTime').value),
+      category: document.getElementById('category').value,
+      servingSize: parseInt(document.getElementById('servingSize').value),
+      ingredients: document.getElementById('ingredients').value,
+      instructions: document.getElementById('instructions').value,
+    };
+
+      fetch('http://127.0.0.1:5186/api/recipe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(tarif)
+      })
+      .then(res => {
+        if (res.ok) {
+          alert('Tarif başarıyla eklendi!');
+          window.location.href = 'home.html';
+        } else {
+          alert('Tarif eklenemedi!');
+        }
+      });
+    }
+  </script>
+</body>
+</html>

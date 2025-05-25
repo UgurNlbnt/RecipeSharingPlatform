@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Ana Sayfa</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .container { max-width:1200px; margin:auto; }
+    .top-bar { display:flex; justify-content:flex-end; flex-direction:column; align-items:flex-end; text-align:right; margin-bottom:20px; }
+    .filters { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:20px; }
+    .filters input, .filters select, .filters button { font-size:0.85em; padding:6px 8px; }
+    .recipes-grid { display:flex; flex-wrap:wrap; gap:20px; }
+    .recipe-card { background:#fff5f7; flex:0 0 calc(33.333% - 20px); border:1px solid #ccc; padding:15px; border-radius:6px; box-sizing:border-box; }
+    .recipe-card h3 { margin-top:0; }
+    .comment-wrapper { background:#ffeef0; padding:8px; border-radius:4px; margin-bottom:8px; }
+    .comment-wrapper button { font-size:0.75em; margin-left:6px; }
+    .comment-wrapper input { font-size:0.8em; padding:4px 6px; margin:4px 4px 0 0; }
+    form.add-comment { margin-top:10px; }
+    form.add-comment input, form.add-comment button { font-size:0.85em; padding:6px 8px; width:100%; box-sizing:border-box; margin-top:4px; }
+
+    .btn-success {
+      background-color: #27ae60;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      margin-right: 6px;
+      cursor: pointer;
+    }
+
+    .btn-danger {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      margin-right: 6px;
+      cursor: pointer;
+    }
+
+    .btn-warning {
+      background-color: #f39c12;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      margin-right: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="top-bar">
+      <h2>Hoş geldin, <span id="kullaniciAdi"></span> 👋</h2>
+      <p>Buraya kullanıcıya özel içerikler ve API'den çekilen veriler gelecek.</p>
+      <button onclick="window.location.href='create-recipe.html'">➕ Yeni Tarif Ekle</button><br>
+      <button onclick="window.location.href='portfolio.html'">📂 Portföyü Görüntüle</button>
+      <button onclick="logout()" style="background-color:#e74c3c; color:white; font-weight:bold; padding: 8px 16px; border:none; border-radius:4px; margin-top:8px; cursor:pointer;">
+    🔒 Çıkış Yap
+  </button>
+    </header>
+
+    <h2>📋 Tarifler</h2>
+    <div class="filters">
+      <input type="text" id="filterName" placeholder="Tarif adı ara">
+      <input type="text" id="filterCategory" placeholder="Kategori">
+      <select id="sortBy">
+        <option value="id">ID</option>
+        <option value="recipeName">Tarif Adı</option>
+        <option value="category">Kategori</option>
+      </select>
+      <select id="isDescending">
+        <option value="false">Artan</option>
+        <option value="true">Azalan</option>
+      </select>
+      <input type="number" id="pageSize" placeholder="Sayfa boyutu" value="10" min="1">
+      <input type="number" id="pageNumber" placeholder="Sayfa" value="1" min="1">
+      <button onclick="loadRecipes()">Uygula</button>
+    </div>
+
+    <div id="recipesContainer" class="recipes-grid"></div>
+  </div>
+
+  <script>
+    const token    = localStorage.getItem('token');
+    let username   = localStorage.getItem('username') || '';
+    username       = username.toLowerCase(); // küçük harfe çeviriyoruz
+    if (!token) window.location.href = 'login.html';
+    document.getElementById('kullaniciAdi').textContent = username || 'Misafir';
+
+    function loadRecipes() {
+      const params = new URLSearchParams({
+        RecipeName:   document.getElementById('filterName').value,
+        Category:     document.getElementById('filterCategory').value,
+        SortBy:       document.getElementById('sortBy').value,
+        IsDescending: document.getElementById('isDescending').value,
+        PageSize:     document.getElementById('pageSize').value,
+        PageNumber:   document.getElementById('pageNumber').value
+      });
+      fetch(`http://127.0.0.1:5186/api/recipe?${params}`, {
+        headers: { 'Authorization': 'Bearer ' + token }
+      })
+      .then(res => res.json())
+      .then(recipes => {
+        const container = document.getElementById('recipesContainer');
+        container.innerHTML = '';
+        recipes.forEach(r => {
+          // yorumları hazırlıyoruz
+          const yorumlar = r.comments?.map(cmt => {
+  const commenter = (cmt.username ?? '').toLowerCase();
+  const mine = commenter === username;
+
+  return `
+    <div class="comment-wrapper">
+      <div>
+        <b>${cmt.username ?? 'Bilinmeyen'}</b> (${cmt.title}): ${cmt.content}
+      </div>
+      ${mine
+  ? `<button style="background-color:#e74c3c; color:white; border:none; padding:5px 10px; border-radius:4px;" onclick="deleteComment(${cmt.id})">Sil</button>
+     <button style="background-color:#f39c12; color:white; border:none; padding:5px 10px; border-radius:4px;" onclick="enterEditMode(${cmt.id})">Güncelle</button>`
+  : ''
+      }
+     ${mine
+  ? `<div id="edit-form-${cmt.id}" style="display:none; margin-top:6px;">
+       <input type="text" id="edit-title-${cmt.id}" value="${cmt.title}">
+       <input type="text" id="edit-content-${cmt.id}" value="${cmt.content}">
+       <button class="btn-success" onclick="updateComment(${cmt.id})">Kaydet</button>
+       <button class="btn-danger" onclick="cancelEdit(${cmt.id})">İptal</button>
+     </div>`
+  : ''
+}
+
+    </div>
+  `;
+}).join('') || '<i>Henüz yorum yok.</i>';
+
+          // tarif kartı
+          const card = document.createElement('div');
+          card.className = 'recipe-card';
+          card.innerHTML = `
+  <h3>${r.recipeName}</h3>
+  <p>
+    <b>Kategori:</b> ${r.category} |
+    <b>Hazırlık:</b> ${r.preparationTime} dk |
+    <b>Pişirme:</b> ${r.cookTime} dk |
+    <b>Kişi Sayısı:</b> ${r.servingSize}
+  </p>
+  <p><b>Malzemeler:</b> ${r.ingredients}</p>
+  <p><b>Tarif:</b> ${r.instructions}</p>
+
+  <!-- 🔥 Değişiklik: createdBy kontrolü kalktı -->
+  <button class="btn-danger" onclick="deleteRecipe(${r.id})">Sil Tarifi</button>
+  <button class="btn-warning" onclick="editRecipe(${r.id})">Güncelle Tarifi</button>
+
+  <button onclick="addToPortfolio('${r.slug}')">Portföyüme Ekle</button>
+  <h4>💬 Yorumlar</h4>
+  ${yorumlar}
+  <form class="add-comment" onsubmit="addComment(event, ${r.id})">
+    <input type="text" name="title" placeholder="Başlık" required>
+    <input type="text" name="content" placeholder="Yorum" required>
+    <button type="submit">Yorum Yap</button>
+  </form>
+
+<div id="edit-form-${r.id}" style="display:none; margin-top:10px;">
+  <input type="text" id="edit-name-${r.id}" value="${r.recipeName}" placeholder="Tarif Adı"><br>
+  <input type="text" id="edit-slug-${r.id}" value="${r.slug}" placeholder="Slug"><br>
+  <input type="number" id="edit-prep-${r.id}" value="${r.preparationTime}" placeholder="Hazırlık Süresi"><br>
+  <input type="number" id="edit-cook-${r.id}" value="${r.cookTime}" placeholder="Pişirme Süresi"><br>
+  <input type="text" id="edit-cat-${r.id}" value="${r.category}" placeholder="Kategori"><br>
+  <input type="number" id="edit-serv-${r.id}" value="${r.servingSize}" placeholder="Kişi Sayısı"><br>
+  <textarea id="edit-ing-${r.id}" placeholder="Malzemeler">${r.ingredients}</textarea><br>
+  <textarea id="edit-inst-${r.id}" placeholder="Talimat">${r.instructions}</textarea><br>
+  <button class="btn-success" onclick="saveRecipe(${r.id})">Kaydet</button>
+  <button class="btn-danger" onclick="cancelEditRecipe(${r.id})">İptal</button>
+</div>
+
+`;
+          container.appendChild(card);
+        });
+      });
+    }
+
+    // CRUD fonksiyonları
+
+    // tarif yorum ekleme fonksiyonu
+    function addComment(e, recipeId) {
+      e.preventDefault();
+      const t = e.target.title.value, c = e.target.content.value;
+      fetch(`http://127.0.0.1:5186/api/comment/${recipeId}`, {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+token },
+        body:JSON.stringify({ title:t, content:c })
+      }).then(res=> res.ok ? loadRecipes() : alert('Yorum eklenemedi'));
+    }
+
+    // tarif silme fonksiyonu
+    function deleteRecipe(id) {
+  if (!confirm('Tarifi silmek istediğine emin misin?')) return;
+  fetch(`http://127.0.0.1:5186/api/recipe/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + token }
+  }).then(r => {
+    if (r.status === 403) {
+      alert("❌ Bu tarifi sadece oluşturan kullanıcı silebilir!");
+      return;
+    }
+    if (r.ok) {
+      alert("✔ Tarif silindi!");
+      loadRecipes();
+    } else {
+      alert("❌ Tarif silinemedi!");
+    }
+  });
+}
+
+    // tarif güncelleme fonksiyonu
+    
+function editRecipe(id) {
+  document.getElementById(`edit-form-${id}`).style.display = 'block';
+}
+
+function cancelEditRecipe(id) {
+  document.getElementById(`edit-form-${id}`).style.display = 'none';
+}
+
+function saveRecipe(id) {
+  const updatedRecipe = {
+    recipeName: document.getElementById(`edit-name-${id}`).value,
+    slug: document.getElementById(`edit-slug-${id}`).value,
+    preparationTime: parseInt(document.getElementById(`edit-prep-${id}`).value),
+    cookTime: parseInt(document.getElementById(`edit-cook-${id}`).value),
+    category: document.getElementById(`edit-cat-${id}`).value,
+    servingSize: parseInt(document.getElementById(`edit-serv-${id}`).value),
+    ingredients: document.getElementById(`edit-ing-${id}`).value,
+    instructions: document.getElementById(`edit-inst-${id}`).value
+  };
+
+  fetch(`http://127.0.0.1:5186/api/recipe/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify(updatedRecipe)
+  })
+  .then(r => {
+    if (r.status === 403) {
+      alert("❌ Sadece kendi tarifini güncelleyebilirsin!");
+      return;
+    }
+    if (r.ok) {
+      alert("✔ Tarif güncellendi!");
+      loadRecipes();
+    } else {
+      alert("❌ Tarif güncellenemedi!");
+    }
+  });
+}
+
+
+
+    // portföye ekleme fonksiyonu
+   function addToPortfolio(slug){
+  fetch(`http://127.0.0.1:5186/api/portfolio?slug=${slug}`, {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + token }
+  }).then(r => {
+    if (r.ok) {
+      alert('✔ Tarif başarıyla portföyüne eklendi!');
+    } else {
+      alert('❌ Portföye eklenemedi.');
+    }
+  });
+
+}
+
+    // yorum güncelleme ve silme fonksiyonları
+    function enterEditMode(commentId){
+      document.getElementById(`edit-form-${commentId}`).style.display = 'block';
+    }
+    function cancelEdit(commentId){
+      document.getElementById(`edit-form-${commentId}`).style.display = 'none';
+    }
+
+    // güncelleme fonksiyonu
+    function updateComment(commentId) {
+      const t = document.getElementById(`edit-title-${commentId}`).value;
+      const c = document.getElementById(`edit-content-${commentId}`).value;
+      fetch(`http://127.0.0.1:5186/api/comment/${commentId}`, {
+        method:'PUT',
+        headers:{ 'Content-Type':'application/json','Authorization':'Bearer '+token },
+        body:JSON.stringify({ title:t, content:c })
+      }).then(r=> {
+        if(r.ok){ cancelEdit(commentId); loadRecipes(); }
+        else alert('Yorum güncellenemedi');
+      });
+    }
+
+    // yorum silme fonksiyonu
+    function deleteComment(commentId) {
+      if(!confirm('Yorumu silmek istediğine emin misin?'))return;
+      fetch(`http://127.0.0.1:5186/api/comment/${commentId}`, {
+        method:'DELETE', headers:{ 'Authorization':'Bearer '+token }
+      }).then(r=> r.ok ? loadRecipes() : alert('Yorum silinemedi'));
+    }
+
+
+    // çıkış yapma fonksiyonu
+    function logout() {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.href = 'login.html';
+    }
+
+    // ilk yüklemede
+    loadRecipes();
+  </script>
+</body>
+</html>
